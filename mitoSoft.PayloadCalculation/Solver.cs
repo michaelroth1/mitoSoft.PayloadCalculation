@@ -1,3 +1,5 @@
+using mitoSoft.PayloadCalculation.Models;
+
 namespace mitoSoft.PayloadCalculation;
 
 public class Solver
@@ -22,6 +24,7 @@ public class Solver
     /// </summary>
     public string Solve(long minRange, ref long amount, ref Transporter transporter, FillingSolution solution)
     {
+        var validator = new LoadValidator(_myFiller.Rules);
         RangeCollection rangeCollection;
         TransporterRange? transporterRange = null;
         string ret = "";
@@ -34,7 +37,7 @@ public class Solver
 
         // Initialisieren
         _cellCount = transporter.Count;
-        rangeCollection = InitRangeCollection(transporter);
+        rangeCollection = InitRangeCollection(transporter, validator);
 
         // Prüfen, ob eine Aufteilung überhaupt möglich ist
         var doc = new Xml.XmlDocument();
@@ -56,7 +59,7 @@ public class Solver
                 //OptimizeFirstCellFull(ref rangeCollection); //-> hab ich raus, da das jetzt mit den Prioritäten realisierbar ist!!!
                 OptimizeMinimumCells(amount, ref rangeCollection);
                 OptimizeMinimumVolume(ref rangeCollection);
-                OptimizeMaxCellsFull(transporter, ref rangeCollection);
+                OptimizeMaxCellsFull(transporter, ref rangeCollection, validator);
 
                 //TRICK 17: Alle Werte sind gleich gewichtet -> deshalb nur den ersten weiter nuztzen
                 transporterRange = rangeCollection[0];
@@ -71,7 +74,7 @@ public class Solver
                 rangeCollection = MakeHalf(transporterRange);
             }
             // Auf Kammern verteilen
-            if (transporterRange != null && Partition(amount, ref transporter, transporterRange, solution) < 0)
+            if (transporterRange != null && Partition(amount, ref transporter, transporterRange, solution, validator) < 0)
             {
                 ret += "<Distribution Status=\"Bad\"/>";
             }
@@ -97,18 +100,18 @@ public class Solver
     /// <returns>0 -> Keine Aufteilung nötig
     ///          1 -> Aufteilung erfolgt
     ///         -1 -> Kann nicht aufgeteilt werden</returns>
-    private long Partition(long amount, ref Transporter transporter, TransporterRange transporterRange, FillingSolution solution)
+    private long Partition(long amount, ref Transporter transporter, TransporterRange transporterRange, FillingSolution solution, LoadValidator validator)
     {
         // Rückgabe und Mengen in der Transportkomponente speichern
         for (short i = 0; i < transporterRange.Count; i++)
         {
-            if (transporterRange[i].UpperLimit == transporter.Cell(i).LowerMaxLimit() ||
-                transporterRange[i].UpperLimit == transporter.Cell(i).UpperMaxLimit())
+            if (transporterRange[i].UpperLimit == validator.LowerMaxLimit(transporter.Cell(i)) ||
+                transporterRange[i].UpperLimit == validator.UpperMaxLimit(transporter.Cell(i)))
             {
                 solution.SetCapacity(i, transporterRange[i].UpperLimit);
             }
-            else if (transporterRange[i].LowerLimit == transporter.Cell(i).LowerMinLimit() ||
-                     transporterRange[i].LowerLimit == transporter.Cell(i).UpperMinLimit())
+            else if (transporterRange[i].LowerLimit == validator.LowerMinLimit(transporter.Cell(i)) ||
+                     transporterRange[i].LowerLimit == validator.UpperMinLimit(transporter.Cell(i)))
             {
                 solution.SetCapacity(i, transporterRange[i].LowerLimit);
             }
@@ -134,7 +137,7 @@ public class Solver
             {
                 var cell = transporter.Cell(i);
                 var capacity = solution.GetCapacity(cell.Name);
-                if (cell.VerifyCapacity(capacity) && capacity > 0)
+                if (validator.VerifyLoad(cell, capacity) && capacity > 0)
                 {
                     solution.SetCapacity(i, capacity + rest);
                     ret = 1;
@@ -152,8 +155,8 @@ public class Solver
                     if (rest > 0)
                     {
                         // Menge muss befüllt werden
-                        if (capacity + rest < cell.LowerMaxLimit() ||
-                            capacity + rest < cell.UpperMaxLimit())
+                        if (capacity + rest < validator.LowerMaxLimit(cell) ||
+                            capacity + rest < validator.UpperMaxLimit(cell))
                         {
                             solution.SetCapacity(cell.Name, capacity + rest);
                             ret = 1;
@@ -162,8 +165,8 @@ public class Solver
                     else if (rest < 0)
                     {
                         // Menge muss entleert werden
-                        if (cell.LowerMinLimit() < capacity + rest ||
-                            cell.UpperMinLimit() < capacity + rest)
+                        if (validator.LowerMinLimit(cell) < capacity + rest ||
+                            validator.UpperMinLimit(cell) < capacity + rest)
                         {
                             solution.SetCapacity(cell.Name, capacity + rest);
                             ret = 1;
@@ -201,7 +204,7 @@ public class Solver
     /// <summary>
     /// Alle Anfangsbedingungen werden festgelegt
     /// </summary>
-    private RangeCollection InitRangeCollection(Transporter transporter)
+    private RangeCollection InitRangeCollection(Transporter transporter, LoadValidator validator)
     {
         int i, j;
         CellRange cellRange;
@@ -229,14 +232,14 @@ public class Solver
                 }
                 else if (arrDreiersystem[i, j] == 1)
                 {
-                    cellRange.LowerLimit = transporter.Cell((short)j).LowerMinLimit();       //Beachtet die Regeln
-                    cellRange.UpperLimit = transporter.Cell((short)j).LowerMaxLimit();
+                    cellRange.LowerLimit = validator.LowerMinLimit(transporter.Cell((short)j));       //Beachtet die Regeln
+                    cellRange.UpperLimit = validator.LowerMaxLimit(transporter.Cell((short)j));
                     cellRange.Volume = transporter.Cell((short)j).Capacity;
                 }
                 else if (arrDreiersystem[i, j] == 2)
                 {
-                    cellRange.LowerLimit = transporter.Cell((short)j).UpperMinLimit();       //Beachtet die Regeln
-                    cellRange.UpperLimit = transporter.Cell((short)j).UpperMaxLimit();
+                    cellRange.LowerLimit = validator.UpperMinLimit(transporter.Cell((short)j));       //Beachtet die Regeln
+                    cellRange.UpperLimit = validator.UpperMaxLimit(transporter.Cell((short)j));
                     cellRange.Volume = transporter.Cell((short)j).Capacity;
                 }
 
@@ -541,7 +544,7 @@ public class Solver
     /// <summary>
     /// Zielfunktion wird bezüglich der größten Kammer optimiert
     /// </summary>
-    private long OptimizeMaxCellsFull(Transporter transporter, ref RangeCollection rangeCollection)
+    private long OptimizeMaxCellsFull(Transporter transporter, ref RangeCollection rangeCollection, LoadValidator validator)
     {
         // Initialisieren
         var newRangeCollection = new RangeCollection();
@@ -555,8 +558,8 @@ public class Solver
             for (short j = 0; j < transporterRange.Count; j++)
             {
                 // Gesamtvolumen wird ausgelesen
-                if (transporterRange[j].UpperLimit == transporter.Cell(j).LowerMaxLimit() ||
-                    transporterRange[j].UpperLimit == transporter.Cell(j).UpperMaxLimit())
+                if (transporterRange[j].UpperLimit == validator.LowerMaxLimit(transporter.Cell(j)) ||
+                    transporterRange[j].UpperLimit == validator.UpperMaxLimit(transporter.Cell(j)))
                 {
                     cellVolumeTemp += transporterRange[j].UpperLimit;
                     maxCellsFullTemp += 1;
@@ -576,8 +579,8 @@ public class Solver
             long cellVolumeTemp = 0;
             for (short j = 0; j < transporterRange.Count; j++)
             {
-                if (transporterRange[j].UpperLimit == transporter.Cell(j).LowerMaxLimit() ||
-                    transporterRange[j].UpperLimit == transporter.Cell(j).UpperMaxLimit())
+                if (transporterRange[j].UpperLimit == validator.LowerMaxLimit(transporter.Cell(j)) ||
+                    transporterRange[j].UpperLimit == validator.UpperMaxLimit(transporter.Cell(j)))
                 {
                     cellVolumeTemp += transporterRange[j].UpperLimit;
                     maxCellsFullTemp += 1;

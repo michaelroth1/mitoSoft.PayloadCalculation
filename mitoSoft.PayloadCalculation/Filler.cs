@@ -11,12 +11,25 @@ public class Filler
     /// <summary>
     /// Konstruktor -> Werte mit Defaultwerten vorbesetzen
     /// </summary>
-    public Filler()
+    public Filler() : this(new LoadingRules())
+    {
+    }
+
+    /// <summary>
+    /// Konstruktor mit benutzerdefinierten Regeln
+    /// </summary>
+    public Filler(LoadingRules rules)
     {
         MaxTolerance = 0.1;
         MinTolerance = 0.1;
         RoundDigits = 0;
+        Rules = rules;
     }
+
+    /// <summary>
+    /// Gesetzliche Regeln für die Kammerfüllung
+    /// </summary>
+    public LoadingRules Rules { get; }
 
     /// <summary>
     /// Maximale Toleranzgrenze ('Defaultwert' = 10%)
@@ -32,7 +45,7 @@ public class Filler
     /// Stellen auf die gerundet werden soll ('Defaultwert' = 0)
     /// </summary>
     public long RoundDigits { get; set; }
-    
+
     public long MaxIterations { get; set; }
 
     /// <summary>
@@ -41,7 +54,7 @@ public class Filler
     public string Fill(long amount, ref Transporter transporter)
     {
         var solver = new Solver(this);
-        var solution = new FillingSolution(transporter);
+        var solution = new FillingSolution(transporter, Rules);
         string status;
         status = $"<Filling Status=\"Good\" Amount=\"{amount}\">";
         // Startet den Optimierungsalgoritmus
@@ -90,12 +103,13 @@ public class Filler
     /// <returns>TRUE -> wenn alle Regeln erfüllt;FALSE -> Wenn Regeln verletzt</returns>
     private bool Verify(long amount, Transporter transporter, FillingSolution solution)
     {
+        var validator = new LoadValidator(Rules);
         long temp = 0;
         // Jede Kammer gegen die Regeln prüfen
         foreach (var cell in transporter)
         {
             var capacity = solution.GetCapacity(cell.Name);
-            if (!cell.VerifyCapacity(capacity) || capacity < 0 || capacity > cell.Capacity)
+            if (!validator.VerifyLoad(cell, capacity) || capacity < 0 || capacity > cell.Capacity)
             {
                 return false;
             }

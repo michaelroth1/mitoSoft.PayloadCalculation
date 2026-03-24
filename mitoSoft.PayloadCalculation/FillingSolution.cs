@@ -1,3 +1,5 @@
+using mitoSoft.PayloadCalculation.Models;
+
 namespace mitoSoft.PayloadCalculation;
 
 /// <summary>
@@ -7,10 +9,12 @@ public class FillingSolution
 {
     private readonly Dictionary<string, double> _chamberCapacities;
     private readonly Transporter _transporter;
+    private readonly LoadValidator _validator;
 
-    public FillingSolution(Transporter transporter)
+    public FillingSolution(Transporter transporter, LoadingRules rules)
     {
         _transporter = transporter;
+        _validator = new LoadValidator(rules);
         _chamberCapacities = new Dictionary<string, double>();
         foreach (var cell in transporter)
         {
@@ -69,7 +73,7 @@ public class FillingSolution
         if (cell == null) return false;
 
         var capacity = GetCapacity(chamberName);
-        return cell.VerifyCapacity(capacity);
+        return _validator.VerifyLoad(cell, capacity);
     }
 
     /// <summary>
@@ -80,7 +84,7 @@ public class FillingSolution
         foreach (var cell in _transporter)
         {
             var capacity = GetCapacity(cell.Name);
-            if (!cell.VerifyCapacity(capacity))
+            if (!_validator.VerifyLoad(cell, capacity))
             {
                 return false;
             }
