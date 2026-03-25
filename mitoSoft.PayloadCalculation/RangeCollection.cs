@@ -15,22 +15,7 @@ internal class RangeCollection
         get => TransporterRanges[index];
         set => TransporterRanges[index] = value;
     }
-
-    /// <summary>
-    /// Number of transporter ranges
-    /// </summary>
-    public int Count => TransporterRanges.Count;
-
-    /// <summary>
-    /// Äquivalent zu 'RemoveAt'
-    /// Hält die Schnittstelle konform
-    /// </summary>
-    public long DeleteItem(long index)
-    {
-        TransporterRanges.RemoveAt((int)index);
-        return 0;
-    }
-
+            
     /// <summary>
     /// Adds a transporter range to the collection
     /// </summary>

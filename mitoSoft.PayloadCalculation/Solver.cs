@@ -34,7 +34,7 @@ internal class Solver(Filler filler)
         doc.LoadXml(ret);
 
         // Iterativer Algorithmus
-        if (rangeCollection.Count > 0 && doc.SelectSingleNode("/Check", "Status").ToUpper() != "BAD")
+        if (rangeCollection.TransporterRanges.Count > 0 && doc.SelectSingleNode("/Check", "Status").ToUpper() != "BAD")
         {
             for (iteration = 1; iteration <= maxIterations; iteration++)
             {
