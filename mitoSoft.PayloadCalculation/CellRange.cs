@@ -30,7 +30,7 @@ internal class CellRange
     /// <summary>
     /// Priorität des Bereichs
     /// </summary>
-    public short Priority { get; set; }
+    public int Priority { get; set; }
 
     /// <summary>
     /// Gibt die Mitte des Bereichs zurück

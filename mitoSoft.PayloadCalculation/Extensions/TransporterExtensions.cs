@@ -23,13 +23,12 @@ public static class TransporterExtensions
     /// Verifies that the number of cells does not exceed the maximum allowed count
     /// </summary>
     /// <param name="transporter">The transporter to verify</param>
-    /// <param name="maxCells">Maximum allowed number of cells (default: 10)</param>
     /// <exception cref="Exceptions.MaxCellException">Thrown when the number of cells exceeds the maximum</exception>
-    public static void VerifyMaxCells(this Models.Transporter transporter, int maxCells = 10)
+    public static void VerifyMaxCells(this Models.Transporter transporter)
     {
-        if (transporter.Cells.Count >= maxCells)
+        if (transporter.Cells.Count >= transporter.MaxCells)
         {
-            throw new MaxCellException($"Maximum number of cells ({maxCells}) would be exceeded. Current count: {transporter.Cells.Count}");
+            throw new MaxCellException($"Maximum number of cells ({transporter.MaxCells}) would be exceeded. Current count: {transporter.Cells.Count}");
         }
     }
 }

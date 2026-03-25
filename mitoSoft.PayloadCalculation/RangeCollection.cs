@@ -29,7 +29,7 @@ internal class RangeCollection
         foreach (var range in TransporterRanges)
         {
             bool contain = true;
-            for (short j = 0; j < range.CellRanges.Count; j++)
+            for (int j = 0; j < range.CellRanges.Count; j++)
             {
                 if (transporterRange[j].LowerLimit != range[j].LowerLimit ||
                     transporterRange[j].UpperLimit != range[j].UpperLimit)

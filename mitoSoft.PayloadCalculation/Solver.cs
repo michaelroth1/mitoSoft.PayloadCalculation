@@ -93,7 +93,7 @@ internal class Solver(Filler filler)
     private long Partition(long amount, Transporter transporter, TransporterRange transporterRange, FillingResult result, FillingValidator validator)
     {
         // Rückgabe und Mengen in der Transportkomponente speichern
-        for (short i = 0; i < transporterRange.CellRanges.Count; i++)
+        for (int i = 0; i < transporterRange.CellRanges.Count; i++)
         {
             if (transporterRange[i].UpperLimit == validator.LowerMaxLimit(transporter.Cells[i]) ||
                 transporterRange[i].UpperLimit == validator.UpperMaxLimit(transporter.Cells[i]))
@@ -118,12 +118,12 @@ internal class Solver(Filler filler)
         }
         // Eine Abweichung ist aufgetreten
         double rest;
-        short ret = 0;
+        int ret = 0;
         if (amountTemp != amount)
         {
             rest = amount - amountTemp;
             //Prüfen ob eine Kammer in die Mitte befüllt ist
-            for (short i = 0; i < transporter.Cells.Count; i++)
+            for (int i = 0; i < transporter.Cells.Count; i++)
             {
                 var cell = transporter.Cells[i];
                 var capacity = result.GetCapacity(cell.Name);
@@ -520,7 +520,7 @@ internal class Solver(Filler filler)
         {
             long maxCellsFullTemp = 0;
             long cellVolumeTemp = 0;
-            for (short j = 0; j < transporterRange.CellRanges.Count; j++)
+            for (int j = 0; j < transporterRange.CellRanges.Count; j++)
             {
                 // Gesamtvolumen wird ausgelesen
                 if (transporterRange[j].UpperLimit == validator.LowerMaxLimit(transporter.Cells[j])
@@ -542,7 +542,7 @@ internal class Solver(Filler filler)
         {
             long maxCellsFullTemp = 0;
             long cellVolumeTemp = 0;
-            for (short j = 0; j < transporterRange.CellRanges.Count; j++)
+            for (int j = 0; j < transporterRange.CellRanges.Count; j++)
             {
                 if (transporterRange[j].UpperLimit == validator.LowerMaxLimit(transporter.Cells[j])
                     || transporterRange[j].UpperLimit == validator.UpperMaxLimit(transporter.Cells[j]))

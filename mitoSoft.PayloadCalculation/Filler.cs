@@ -59,14 +59,14 @@ public class Filler
         transporter.VerifyMaxCells();
 
         var solver = new Solver(this);
-        var result = new FillingResult(transporter, Rules);
+        var solution = new FillingResult(transporter, Rules);
         string status;
 
         var doc = new Xml.XmlDocument();
         status = $"<Filling Amount=\"{amount}\">";
 
         // Startet den Optimierungsalgoritmus
-        status += solver.Solve(1, amount, transporter, result);
+        status += solver.Solve(1, amount, transporter, solution);
 
         doc.LoadXml(status + "</Filling>");
         if (doc.SelectSingleNode("Filling/Check", "Status").ToUpper() != "BAD")

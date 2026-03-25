@@ -2,7 +2,7 @@ namespace mitoSoft.PayloadCalculation.Models;
 
 public class Transporter
 {
-    private const long MaxCells = 10;
+    public int MaxCells { get; set; } = 10;
 
     /// <summary>
     /// Collection of cells in the transporter

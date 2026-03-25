@@ -8,7 +8,7 @@ public class Cell
     /// <summary>
     /// Constructor
     /// </summary>
-    public Cell(string name, long capacity, long baffles, short priority)
+    public Cell(string name, long capacity, long baffles, int priority)
     {
         Name = name;
         Capacity = capacity;
@@ -31,5 +31,5 @@ public class Cell
     /// <summary>
     /// Priorität der Kammerfüllung
     /// </summary>
-    public short Priority { get; set; }
+    public int Priority { get; set; }
 }
