@@ -6,7 +6,7 @@ namespace mitoSoft.PayloadCalculation;
 /// <remarks>
 /// Constructor with custom values
 /// </remarks>
-public class LoadingRules(
+public class FillingRules(
     double chamberLowerMin,
     double chamberLowerMax,
     double chamberUpperMin,
@@ -16,7 +16,7 @@ public class LoadingRules(
     /// <summary>
     /// Constructor -> sets properties with default values
     /// </summary>
-    public LoadingRules() : this(0.0, 0.25, 0.8, 0.9, 7500) { }
+    public FillingRules() : this(0.0, 0.25, 0.8, 0.9, 7500) { }
 
     public double ChamberLowerMin { get; set; } = chamberLowerMin;
     public double ChamberLowerMax { get; set; } = chamberLowerMax;

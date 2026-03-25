@@ -5,18 +5,18 @@ namespace mitoSoft.PayloadCalculation;
 /// <summary>
 /// Repräsentiert das Ergebnis einer Befüllung
 /// </summary>
-public class FillingSolution
+public class FillingResult
 {
     private readonly Dictionary<string, double> _chamberCapacities;
     private readonly Transporter _transporter;
-    private readonly LoadValidator _validator;
+    private readonly FillingValidator _validator;
 
-    public FillingSolution(Transporter transporter, LoadingRules rules)
+    public FillingResult(Transporter transporter, FillingRules rules)
     {
         _transporter = transporter;
-        _validator = new LoadValidator(rules);
+        _validator = new FillingValidator(rules);
         _chamberCapacities = new Dictionary<string, double>();
-        foreach (var cell in transporter)
+        foreach (var cell in transporter.Cells)
         {
             _chamberCapacities[cell.Name] = 0;
         }
@@ -35,7 +35,7 @@ public class FillingSolution
     /// </summary>
     public void SetCapacity(int index, double capacity)
     {
-        var cell = _transporter[index];
+        var cell = _transporter.Cells[index];
         _chamberCapacities[cell.Name] = capacity;
     }
 
@@ -52,7 +52,7 @@ public class FillingSolution
     /// </summary>
     public double GetCapacity(int index)
     {
-        var cell = _transporter[index];
+        var cell = _transporter.Cells[index];
         return GetCapacity(cell.Name);
     }
 
@@ -69,7 +69,10 @@ public class FillingSolution
     /// </summary>
     public bool VerifyCell(string chamberName)
     {
-        var cell = _transporter.CellByName(chamberName);
+        var cell = _transporter
+            .Cells
+            .Single(c => c.Name == chamberName);
+
         if (cell == null) return false;
 
         var capacity = GetCapacity(chamberName);
@@ -81,7 +84,7 @@ public class FillingSolution
     /// </summary>
     public bool VerifyAll()
     {
-        foreach (var cell in _transporter)
+        foreach (var cell in _transporter.Cells)
         {
             var capacity = GetCapacity(cell.Name);
             if (!_validator.VerifyLoad(cell, capacity))

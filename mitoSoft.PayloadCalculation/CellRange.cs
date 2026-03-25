@@ -1,6 +1,6 @@
 namespace mitoSoft.PayloadCalculation;
 
-public class CellRange
+internal class CellRange
 {
     /// <summary>
     /// Constructor

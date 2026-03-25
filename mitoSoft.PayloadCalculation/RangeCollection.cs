@@ -1,23 +1,50 @@
 namespace mitoSoft.PayloadCalculation;
 
-public class RangeCollection : List<TransporterRange>
+internal class RangeCollection
 {
+    /// <summary>
+    /// Collection of transporter ranges
+    /// </summary>
+    public List<TransporterRange> TransporterRanges { get; } = [];
+
+    /// <summary>
+    /// Indexer for accessing transporter ranges by index
+    /// </summary>
+    public TransporterRange this[int index]
+    {
+        get => TransporterRanges[index];
+        set => TransporterRanges[index] = value;
+    }
+
+    /// <summary>
+    /// Number of transporter ranges
+    /// </summary>
+    public int Count => TransporterRanges.Count;
+
     /// <summary>
     /// Äquivalent zu 'RemoveAt'
     /// Hält die Schnittstelle konform
     /// </summary>
     public long DeleteItem(long index)
     {
-        RemoveAt((int)index);
+        TransporterRanges.RemoveAt((int)index);
         return 0;
     }
 
-    public new bool Contains(TransporterRange transporterRange)
+    /// <summary>
+    /// Adds a transporter range to the collection
+    /// </summary>
+    public void Add(TransporterRange transporterRange)
     {
-        foreach (var range in this)
+        TransporterRanges.Add(transporterRange);
+    }
+
+    public bool Contains(TransporterRange transporterRange)
+    {
+        foreach (var range in TransporterRanges)
         {
             bool contain = true;
-            for (short j = 0; j < range.Count; j++)
+            for (short j = 0; j < range.CellRanges.Count; j++)
             {
                 if (transporterRange[j].LowerLimit != range[j].LowerLimit ||
                     transporterRange[j].UpperLimit != range[j].UpperLimit)

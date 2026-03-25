@@ -5,11 +5,11 @@ namespace mitoSoft.PayloadCalculation;
 /// <summary>
 /// Verifikationsklasse für die Prüfung der Beladung von Kammern
 /// </summary>
-public class LoadValidator
+internal class FillingValidator
 {
-    private readonly LoadingRules _rules;
+    private readonly FillingRules _rules;
 
-    public LoadValidator(LoadingRules rules)
+    public FillingValidator(FillingRules rules)
     {
         _rules = rules;
     }
