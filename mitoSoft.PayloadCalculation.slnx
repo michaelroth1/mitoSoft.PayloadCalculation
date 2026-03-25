@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="mitoSoft.PayloadCalculation\mitoSoft.PayloadCalculation.csproj" Type="Classic C#" />
+  <Project Path="mitoSoft.PayloadCalculation.Tests.ConsoleApp\mitoSoft.PayloadCalculation.Tests.ConsoleApp.csproj" Type="Classic C#" />
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
+  </Properties>
+  <StartupProjects>
+    <Project Path="mitoSoft.PayloadCalculation.Tests.ConsoleApp\mitoSoft.PayloadCalculation.Tests.ConsoleApp.csproj" />
+  </StartupProjects>
+</Solution>
